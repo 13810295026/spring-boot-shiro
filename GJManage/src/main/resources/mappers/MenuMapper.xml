@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzxt.gj.mapper.MenuMapper">
+	
+	<!-- 基于菜单id查找权限标识 -->
+	<select id="selectPermissionsByIds" resultType="String">
+		select
+			permission
+		from
+			tb_auth_menu
+		where
+  			id in
+	  		<foreach collection="ids" open="(" close=")"
+				separator="," item="item">
+				#{item}
+			</foreach>
+	</select>
+	
+	<!-- 从顶级菜单开始查询角色对应的菜单树 -->
+	<select id="selectByRoleId" parameterType="Integer" resultMap="menuTreeRM">
+		select
+			id,
+			name,
+			url,
+			type,
+			sort,
+			`desc`,
+			permission,
+			parent_id,
+			#{roleId} as role_id
+		from
+			tb_auth_menu
+		where
+			parent_id = 0
+	</select>
+	
+	<!-- 递归子节点 -->
+	<select id="selectChilds" resultMap="menuTreeRM">
+		select
+			id,
+			name,
+			url,
+			type,
+			sort,
+			`desc`,
+			permission,
+			parent_id,
+			#{p_role_id} as role_id
+		from
+			tb_auth_menu
+		where
+			parent_id = #{id}
+	</select>
+	
+	<resultMap type="com.hzxt.gj.vo.MenuTree" id="menuTreeRM">
+		<!--
+			自动映射以下字段：
+			<id column="id" property="id" />
+			<result column="name" property="name" />
+			<result column="url" property="url" />
+			<result column="type" property="type" />
+			<result column="sort" property="sort" />
+			<result column="desc" property="desc" />
+			<result column="permission" property="permission" />
+			<result column="parent_id" property="parentId" />
+		-->
+		<collection property="authorized" ofType="Boolean" 
+				column="{id=id,p_role_id=role_id}" select="com.hzxt.gj.mapper.RoleMapper.selectAuthorized"/>
+		<collection property="childs" ofType="com.hzxt.gj.vo.MenuTree" 
+				column="{id=id,p_role_id=role_id}" select="selectChilds"/>
+	</resultMap>
+</mapper>

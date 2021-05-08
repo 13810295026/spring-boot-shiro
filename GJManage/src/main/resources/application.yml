@@ -1,0 +1,168 @@
+spring:
+  profiles:
+    active: dev
+#    active: uat
+#    active: prd
+
+---
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 1000
+    max-threads: 800
+    max-connections: 20000
+spring:
+  application:
+    name: gj-manage
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM sys_user
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,wall
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: .js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*
+      stat-view-servlet:
+        url-pattern: /druid/*
+        # allow: 127.0.0.1
+        # deny: 192.168.31.253
+        reset-enable: false
+        login-username: root
+        login-password: root
+mybatis-plus:
+  type-aliases-package: com.hzxt.gj.pojo
+  mapper-locations: classpath:mappers/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    root: INFO
+auth:
+  login:
+    try-time: 20
+    interval-time: 30
+aliyun:
+  oss:
+    defalut:
+      accessKeyId: #
+      accessKeySecret: #
+      bucketName: #
+      endPoint: oss-cn-beijing.aliyuncs.com
+      prefix: 
+
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://192.168.0.9:3306/gj_manage?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  redis:
+    host: 192.168.0.9
+    port: 6379
+    password: Huizhi123
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 1000
+        max-idle: 300
+        min-idle: 100
+        max-wait: -1
+  rabbitmq:
+    host: 192.168.0.9
+    port: 5672
+    username: root
+    password: root
+    virtual-host: gj
+    publisher-confirms: true
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+dubbo:
+  registry:
+    address: zookeeper://192.168.0.9:2181
+
+---
+spring:
+  profiles: uat
+  datasource:
+    url: jdbc:mysql://192.168.0.9:3306/gj_manage?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  redis:
+    host: 192.168.0.9
+    port: 6379
+    password: root
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 1000
+        max-idle: 300
+        min-idle: 100
+        max-wait: -1
+  rabbitmq:
+    host: 192.168.0.9
+    port: 5672
+    username: root
+    password: root
+    virtual-host: gj
+    publisher-confirms: true
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+dubbo:
+  registry:
+    address: zookeeper://192.168.0.9:2181
+
+---
+spring:
+  profiles: prd
+  datasource:
+    url: jdbc:mysql://192.168.0.9:3306/gj_manage?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  redis:
+    host: 192.168.0.9
+    port: 6379
+    password: root
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 1000
+        max-idle: 300
+        min-idle: 100
+        max-wait: -1
+  rabbitmq:
+    host: 192.168.0.9
+    port: 5672
+    username: root
+    password: root
+    virtual-host: gj
+    publisher-confirms: true
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+dubbo:
+  registry:
+    address: zookeeper://192.168.0.9:2181

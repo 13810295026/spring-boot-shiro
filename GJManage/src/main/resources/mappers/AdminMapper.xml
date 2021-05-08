@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzxt.gj.mapper.AdminMapper">
+	
+	<select id="selectByAccount" resultType="Admin">
+		select
+			*
+		from
+			tb_auth_admin
+		where
+			account = #{account}
+	</select>
+	
+	<select id="selectRoleIdsById" resultType="Integer">
+		select
+			role_id
+		from
+			tb_auth_admin_role
+		where
+			admin_id = #{id}
+	</select>
+	
+	<!-- 查询用户及用户所属角色信息
+	 {
+	    "id": 1,
+	    "account": "admin",
+	    "password": "3f0d3e259b8d7f4d5a0163d9b77d5ebd",
+	    "salt": "61f5c62553c541b183bc0bb9b88286e4",
+	    "name": "管理员",
+	    "mobile": "13810295026",
+	    "status": 0,
+	    "picture": "00000000001.jpg",
+	    "createTime": "2019-07-11 13:53:41",
+	    "createAccount": "admin",
+	    "lastLoginTime": "2021-05-08 10:28:27",
+	    "errorCount": 1,
+	    "errorTime": "2020-09-11 15:26:02",
+	    "roles": [
+	      {
+	        "adminId": 1,
+	        "roleId": 1,
+	        "roleName": "超级管理员"
+	      },
+	      {
+	        "adminId": 1,
+	        "roleId": 4,
+	        "roleName": "老师用户组"
+	      }
+	    ]
+	  } -->
+	<select id="selectAdminRoleById" resultMap="adminRolesRM">
+		select 			
+			u.*,
+			r.admin_id,
+			r.role_id,
+			o.name as role_name
+		from 
+			tb_auth_admin u
+		left join 
+			tb_auth_admin_role r on u.id = r.admin_id
+		left join 
+			tb_auth_role o on r.role_id = o.id
+		where 
+			u.id = #{id}
+	</select>
+	
+	<delete id="deleteAdminRole">
+		delete from 
+			tb_auth_admin_role 
+		where 
+			id = #{id}
+	</delete>
+	
+	<resultMap type="com.hzxt.gj.vo.AdminRoles" id="adminRM">
+		<id column="id" property="id" />
+		<result column="account" property="account" />
+		<result column="password" property="password" />
+		<result column="salt" property="salt" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="teacher_id" property="teacherId" />
+		<result column="teacher_name" property="teacherName" />
+		<result column="mobile" property="mobile" />
+		<result column="picture" property="picture" />
+		<result column="status" property="status" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" />
+		<result column="create_account" property="createAccount" />
+		<result column="last_login_time" property="lastLoginTime" javaType="java.util.Date" />
+		<result column="error_count" property="errorCount" />
+		<result column="error_time" property="errorTime" javaType="java.util.Date" />
+	</resultMap>
+	<resultMap type="com.hzxt.gj.vo.AdminRoles" extends="adminRM" id="adminRolesRM">
+		<collection property="roles" ofType="com.hzxt.gj.vo.RoleInfo" column="admin_id">
+			<result column="admin_id" property="adminId" />
+			<result column="role_id" property="roleId" />
+			<result column="role_name" property="roleName" />
+		</collection>
+	</resultMap>
+</mapper>

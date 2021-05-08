@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hzxt.gj.mapper.RoleMapper">
+	
+	<!-- 查询角色菜单全映射 -->
+	<select id="selectRoleMenuById" resultMap="roleMenusRM">
+		select
+			id,
+			name,
+			`desc`,
+			created_time,
+			modified_time,
+			created_account,
+			modified_account
+		from
+			tb_auth_role
+		where
+			id = #{id}
+	</select>
+
+	<!-- 查询一个角色授权的菜单id -->
+	<select id="selectMenuIdsById" resultType="Integer">
+		select
+			menu_id
+		from
+			tb_auth_role_menu
+		where
+  			role_id = #{id}
+	</select>
+
+	<!-- 查询关系表中角色是否授权菜单 -->
+	<select id="selectAuthorized" resultType="Boolean">
+		select
+			count(1) > 0
+		from
+			tb_auth_role_menu
+		where
+			role_id = #{p_role_id}
+		and
+			menu_id = #{id}
+	</select>
+	
+	<!-- 查询多个角色授权的菜单id -->
+	<select id="selectMenuIdsByIds" resultType="Integer">
+		select
+			distinct menu_id
+		from
+			tb_auth_role_menu
+		where
+  			role_id in
+	  		<foreach collection="ids" open="(" close=")"
+				separator="," item="item">
+				#{item}
+			</foreach>
+	</select>
+	
+	<!-- 删除一个角色的授权关系 -->
+	<delete id="deleteRoleMenusById" parameterType="Integer">
+		delete from
+			tb_auth_role_menu
+		where
+			role_id = #{id}
+	</delete>
+
+	<resultMap type="com.hzxt.gj.vo.RoleMenuTree" id="roleMenusRM">
+		<id column="id" property="id" />
+		<collection property="menuTree" select="com.hzxt.gj.mapper.MenuMapper.selectByRoleId" column="id" />
+		<collection property="menuIds" select="selectMenuIdsById" column="id" />
+	</resultMap>
+</mapper>
